@@ -9,11 +9,12 @@ import (
 )
 
 func main() {
-	_ = configs.LoadConfig()
+	config := configs.LoadConfig()
 	fmt.Printf("Start server")
 	router := http.NewServeMux()
 
-	auth.NewAuthHandler(router)
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
+		Config: config})
 
 	server := http.Server{
 		Addr:    ":8080",
