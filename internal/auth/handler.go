@@ -27,20 +27,26 @@ func NewAuthHandler(r *http.ServeMux, deps AuthHandlerDeps) {
 	r.HandleFunc("POST /auth/register", h.Register())
 }
 
+// TODO: перенести в другой пакет
+func Parse(w http.ResponseWriter, r *http.Request, dto *interface{}) {
+	err := json.NewDecoder(r.Body).Decode(&dto)
+	if err != nil {
+		res.Json(w, err.Error(), 402)
+		return
+	}
+	validator := validator.New()
+	err = validator.Struct(dto)
+	if err != nil {
+		res.Json(w, err.Error(), 402)
+		return
+	}
+}
+
 func (h *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req LoginRequest
-		err := json.NewDecoder(r.Body).Decode(&req)
-		if err != nil {
-			res.Json(w, err.Error(), 402)
-			return
-		}
-		validator := validator.New()
-		err = validator.Struct(req)
-		if err != nil {
-			res.Json(w, err.Error(), 402)
-			return
-		}
+
+		Parse(w, r, &req)
 
 		data := LoginResponse{
 			Token: h.Config.Auth.Secret,
