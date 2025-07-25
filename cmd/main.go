@@ -3,16 +3,18 @@ package main
 import (
 	"fmt"
 	"go-advance/configs"
-	"go-advance/internal/hello"
+	"go-advance/internal/auth"
 	"log"
 	"net/http"
 )
 
 func main() {
-	conf := configs.LoadConfig()
+	_ = configs.LoadConfig()
 	fmt.Printf("Start server")
 	router := http.NewServeMux()
-	hello.NewHelloHandler(router)
+
+	auth.NewAuthHandler(router)
+
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: router,
