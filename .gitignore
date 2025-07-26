@@ -1,3 +1,4 @@
 !.gitkeep
 
 postgres-data/
+.env
