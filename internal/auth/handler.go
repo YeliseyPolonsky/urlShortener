@@ -1,14 +1,11 @@
 package auth
 
 import (
-	"encoding/json"
 	"fmt"
 	"go-advance/configs"
+	"go-advance/pkg/req"
 	"go-advance/pkg/res"
-	"io"
 	"net/http"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type AuthHandler struct {
@@ -27,27 +24,13 @@ func NewAuthHandler(r *http.ServeMux, deps AuthHandlerDeps) {
 	r.HandleFunc("POST /auth/register", h.Register())
 }
 
-// TODO: перенести в другой пакет
-func Parse(w http.ResponseWriter, r *http.Request, dto *interface{}) {
-	err := json.NewDecoder(r.Body).Decode(&dto)
-	if err != nil {
-		res.Json(w, err.Error(), 402)
-		return
-	}
-	validator := validator.New()
-	err = validator.Struct(dto)
-	if err != nil {
-		res.Json(w, err.Error(), 402)
-		return
-	}
-}
-
 func (h *AuthHandler) Login() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req LoginRequest
-
-		Parse(w, r, &req)
-
+		dto, err := req.HandleBody[LoginRequest](&w, r)
+		if err != nil {
+			return
+		}
+		fmt.Println(*dto)
 		data := LoginResponse{
 			Token: h.Config.Auth.Secret,
 		}
@@ -58,7 +41,15 @@ func (h *AuthHandler) Login() http.HandlerFunc {
 
 func (h *AuthHandler) Register() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, "Registration LOL\n")
-		fmt.Println(r.Method, "Registration")
+		dto, err := req.HandleBody[RegisterRequest](&w, r)
+		if err != nil {
+			return
+		}
+		fmt.Println(*dto)
+		data := RegisterResponse{
+			Token: fmt.Sprint("Register:", h.Config.Auth.Secret),
+		}
+
+		res.Json(w, data, 201)
 	}
 }
