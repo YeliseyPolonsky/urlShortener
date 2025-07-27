@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-advance/configs"
 	"go-advance/internal/auth"
+	"go-advance/internal/link"
 	"log"
 	"net/http"
 )
@@ -13,8 +14,9 @@ func main() {
 	fmt.Printf("Start server")
 	router := http.NewServeMux()
 
-	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
-		Config: config})
+	//Handlers
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{Config: config})
+	link.NewLinkHandler(router, link.LinkHandlerDeps{Config: config})
 
 	server := http.Server{
 		Addr:    ":8080",
