@@ -6,6 +6,8 @@ import (
 	"net/http"
 )
 
+//нужен ли конфиг?
+
 type LinkHandler struct {
 	*configs.Config
 	*LinkRepository
