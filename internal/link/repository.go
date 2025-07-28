@@ -22,3 +22,13 @@ func (r *LinkRepository) Create(link *Link) error {
 
 	return nil
 }
+
+func (r *LinkRepository) GetByHash(hash string) (*Link, error) {
+	var link Link
+	result := r.DB.First(&link, "hash = ?", hash)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &link, nil
+}

@@ -8,13 +8,13 @@ import (
 
 type Link struct {
 	gorm.Model
-	Link string `json:"url"`
+	Url  string `json:"url"`
 	Hash string `json:"hash" gorm:"uniqueIndex"`
 }
 
 func NewLink(url string) *Link {
 	return &Link{
-		Link: url,
+		Url:  url,
 		Hash: RandStringRunes(5),
 	}
 }
