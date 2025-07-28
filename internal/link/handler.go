@@ -3,6 +3,8 @@ package link
 import (
 	"fmt"
 	"go-advance/configs"
+	"go-advance/pkg/req"
+	"go-advance/pkg/res"
 	"net/http"
 )
 
@@ -32,7 +34,17 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 
 func (h *LinkHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
+		dto, err := req.HandleBody[LinkCreateRequest](w, r)
+		if err != nil {
+			return
+		}
+		link := NewLink(dto.Url)
+		err = h.LinkRepository.Create(link)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest) //код неверный?
+			return
+		}
+		res.Json(w, link, 201)
 	}
 }
 

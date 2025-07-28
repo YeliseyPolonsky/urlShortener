@@ -14,6 +14,11 @@ func NewLinkRepository(database *db.Db) *LinkRepository {
 	}
 }
 
-func (r *LinkRepository) Create(link *Link) {
+func (r *LinkRepository) Create(link *Link) error {
+	result := r.DB.Create(link)
+	if result.Error != nil {
+		return result.Error
+	}
 
+	return nil
 }

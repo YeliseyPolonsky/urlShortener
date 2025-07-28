@@ -1,10 +1,10 @@
 package link
 
-type CreateRequest struct {
-	Url string `json:"url" validate:"required"`
+type LinkCreateRequest struct {
+	Url string `json:"url" validate:"required,url"`
 }
 
-type CreateResponse struct {
+type LinkCreateResponse struct {
 	Url  string `json:"url"`
 	Hash string `json:"hash"`
 }
