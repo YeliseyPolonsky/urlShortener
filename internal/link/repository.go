@@ -36,13 +36,6 @@ func (r *LinkRepository) GetByHash(hash string) (*Link, error) {
 	return &link, nil
 }
 
-func (r *LinkRepository) IsExist(name string, value string) bool {
-	var link Link
-	r.DB.First(&link, name+" = ?", value)
-
-	return link.ID != 0
-}
-
 func (r *LinkRepository) Update(link *Link) error {
 	result := r.DB.Clauses(clause.Returning{}).UpdateColumns(link)
 	if result.Error != nil {
@@ -60,4 +53,14 @@ func (r *LinkRepository) Delete(id uint) error {
 	}
 
 	return nil
+}
+
+func (r *LinkRepository) GetByID(id uint) (*Link, error) {
+	var link Link
+	result := r.DB.First(&link, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &link, nil
 }
