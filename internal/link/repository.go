@@ -3,6 +3,7 @@ package link
 import (
 	"go-advance/pkg/db"
 
+	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
 
@@ -44,6 +45,16 @@ func (r *LinkRepository) IsExist(name string, value string) bool {
 
 func (r *LinkRepository) Update(link *Link) error {
 	result := r.DB.Clauses(clause.Returning{}).UpdateColumns(link)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
+func (r *LinkRepository) Delete(id uint) error {
+	link := Link{Model: gorm.Model{ID: id}}
+	result := r.DB.Delete(&link)
 	if result.Error != nil {
 		return result.Error
 	}

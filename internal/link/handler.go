@@ -1,7 +1,6 @@
 package link
 
 import (
-	"fmt"
 	"go-advance/configs"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
@@ -89,8 +88,18 @@ func (h *LinkHandler) Update() http.HandlerFunc {
 
 func (h *LinkHandler) Delete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := r.PathValue("id")
-		fmt.Println(id)
+		idString := r.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err = h.LinkRepository.Delete(uint(id))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res.Json(w, "delete success", 200)
 	}
 }
 
