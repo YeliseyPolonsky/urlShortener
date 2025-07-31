@@ -6,6 +6,7 @@ import (
 	"go-advance/internal/auth"
 	"go-advance/internal/link"
 	"go-advance/pkg/db"
+	"go-advance/pkg/middlware"
 	"log"
 	"net/http"
 )
@@ -24,7 +25,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: router,
+		Handler: middlware.Logging(router),
 	}
 
 	fmt.Println("Start server <- localhost:8080")
