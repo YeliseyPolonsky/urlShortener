@@ -6,6 +6,9 @@ import (
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
 	"net/http"
+	"strconv"
+
+	"gorm.io/gorm"
 )
 
 //нужен ли конфиг?
@@ -39,6 +42,16 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 			return
 		}
 		link := NewLink(dto.Url)
+		// for h.LinkRepository.IsExist("hash", link.Hash) {
+		// 	link.GenerateHash()
+		// }
+		for {
+			existedLink, _ := h.LinkRepository.GetByHash(link.Hash)
+			if existedLink == nil {
+				break
+			}
+			link.GenerateHash()
+		}
 		err = h.LinkRepository.Create(link)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest) //код неверный?
@@ -50,6 +63,27 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 
 func (h *LinkHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		dto, err := req.HandleBody[LinkUpdateRequest](w, r)
+		if err != nil {
+			return
+		}
+		idString := r.PathValue("id")
+		id, err := strconv.ParseUint(idString, 10, 32)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		link := &Link{
+			Model: gorm.Model{ID: uint(id)},
+			Url:   dto.Url,
+			Hash:  dto.Hash,
+		}
+		err = h.LinkRepository.Update(link)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		res.Json(w, link, 200)
 	}
 }
 
