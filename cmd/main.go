@@ -23,9 +23,15 @@ func main() {
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{Config: config})
 	link.NewLinkHandler(router, link.LinkHandlerDeps{Config: config, LinkRepository: linkRepository})
 
+	//Middlwares
+	stack := middlware.Chain(
+		middlware.CORS,
+		middlware.Logging,
+	)
+
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: middlware.CORS(middlware.Logging(router)),
+		Handler: stack(router),
 	}
 
 	fmt.Println("Start server <- localhost:8080")
