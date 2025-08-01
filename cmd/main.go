@@ -27,6 +27,7 @@ func main() {
 	stack := middlware.Chain(
 		middlware.CORS,
 		middlware.Logging,
+		middlware.IsAuth,
 	)
 
 	server := http.Server{
