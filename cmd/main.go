@@ -5,6 +5,7 @@ import (
 	"go-advance/configs"
 	"go-advance/internal/auth"
 	"go-advance/internal/link"
+	"go-advance/internal/user"
 	"go-advance/pkg/db"
 	"go-advance/pkg/middlware"
 	"log"
@@ -18,10 +19,20 @@ func main() {
 
 	//Repositories
 	linkRepository := link.NewLinkRepository(db)
+	userRepository := user.NewUserRepository(db)
+
+	//Services
+	authService := auth.NewUserService(userRepository)
 
 	//Handlers
-	auth.NewAuthHandler(router, auth.AuthHandlerDeps{Config: config})
-	link.NewLinkHandler(router, link.LinkHandlerDeps{Config: config, LinkRepository: linkRepository})
+	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
+		Config:      config,
+		AuthService: authService},
+	)
+	link.NewLinkHandler(router, link.LinkHandlerDeps{
+		Config:         config,
+		LinkRepository: linkRepository},
+	)
 
 	//Middlwares
 	stack := middlware.Chain(
