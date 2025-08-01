@@ -25,7 +25,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: middlware.Logging(router),
+		Handler: middlware.CORS(middlware.Logging(router)),
 	}
 
 	fmt.Println("Start server <- localhost:8080")
