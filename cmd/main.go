@@ -27,12 +27,12 @@ func main() {
 	//Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config:      config,
-		AuthService: authService},
-	)
+		AuthService: authService,
+	})
 	link.NewLinkHandler(router, link.LinkHandlerDeps{
 		Config:         config,
-		LinkRepository: linkRepository},
-	)
+		LinkRepository: linkRepository,
+	})
 
 	//Middlwares
 	stack := middlware.Chain(

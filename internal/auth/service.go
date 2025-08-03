@@ -29,15 +29,15 @@ func (service *AuthService) Login(email, password string) error {
 	return nil
 }
 
-func (service *AuthService) Register(email, password, name string) (string, error) {
+func (service *AuthService) Register(email, password, name string) error {
 	exitstedUser, _ := service.repository.FindByEmail(email)
 	if exitstedUser != nil {
-		return "", errors.New(ErrUserAlreadyExist)
+		return errors.New(ErrUserAlreadyExist)
 	}
 
 	cryptedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return err
 	}
 	user := &user.User{
 		Email:    email,
@@ -46,8 +46,8 @@ func (service *AuthService) Register(email, password, name string) (string, erro
 	}
 	err = service.repository.Create(user)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return user.Email, nil
+	return nil
 }

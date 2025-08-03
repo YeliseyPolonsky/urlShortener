@@ -17,7 +17,7 @@ func (j *JWT) Create(email string) (string, error) {
 		"email": email,
 	})
 
-	s, err := t.SignedString(j.Secret)
+	s, err := t.SignedString([]byte(j.Secret))
 	if err != nil {
 		return "", err
 	}
