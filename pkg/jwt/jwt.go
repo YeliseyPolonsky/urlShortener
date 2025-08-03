@@ -34,7 +34,7 @@ func (j *JWT) Parse(token string) (bool, *JWTData) {
 		return []byte(j.Secret), nil
 	})
 	if err != nil {
-		return true, nil
+		return false, nil
 	}
 	data := &JWTData{
 		Email: t.Claims.(jwt.MapClaims)["email"].(string),

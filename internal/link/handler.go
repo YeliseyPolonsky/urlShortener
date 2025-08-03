@@ -5,7 +5,6 @@ import (
 	"go-advance/pkg/middlware"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -64,8 +63,8 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 
 func (h *LinkHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email := r.Context().Value(middlware.CtxEmailKey)
-		log.Println(email)
+		// email := r.Context().Value(middlware.CtxEmailKey)
+		// log.Println(email)
 		dto, err := req.HandleBody[LinkUpdateRequest](w, r)
 		if err != nil {
 			return
