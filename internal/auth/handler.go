@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"go-advance/configs"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
@@ -33,12 +32,13 @@ func (h *AuthHandler) Login() http.HandlerFunc {
 		if err != nil {
 			return
 		}
-		fmt.Println(*dto)
-		data := LoginResponse{
-			Token: h.Config.Auth.Secret,
+		err = h.AuthService.Login(dto.Email, dto.Password)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
-		res.Json(w, data, 201)
+		res.Json(w, dto.Email+" welcome!", 201)
 	}
 }
 

@@ -15,6 +15,20 @@ func NewUserService(repository *user.UserRepository) *AuthService {
 	return &AuthService{repository: repository}
 }
 
+func (service *AuthService) Login(email, password string) error {
+	exitstedUser, _ := service.repository.FindByEmail(email)
+
+	if exitstedUser == nil {
+		return errors.New(ErrUserNotRegistered)
+	}
+
+	err := bcrypt.CompareHashAndPassword([]byte(exitstedUser.Password), []byte(password))
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (service *AuthService) Register(email, password, name string) (string, error) {
 	exitstedUser, _ := service.repository.FindByEmail(email)
 	if exitstedUser != nil {

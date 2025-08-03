@@ -20,11 +20,11 @@ func (r *UserRepository) Create(user *User) error {
 }
 
 func (r *UserRepository) FindByEmail(email string) (*User, error) {
-	var user *User
-	result := r.DB.First(user, "email = ?", email)
+	var user User
+	result := r.DB.First(&user, "email = ?", email)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return user, nil
+	return &user, nil
 }
