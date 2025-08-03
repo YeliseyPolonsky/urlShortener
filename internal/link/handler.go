@@ -5,6 +5,7 @@ import (
 	"go-advance/pkg/middlware"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -30,7 +31,7 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	}
 
 	router.HandleFunc("POST /link", h.Create())
-	router.Handle("PATCH /link/{id}", middlware.IsAuth(h.Update()))
+	router.Handle("PATCH /link/{id}", middlware.IsAuth(h.Update(), deps.Config))
 	router.HandleFunc("DELETE /link/{id}", h.Delete())
 	router.HandleFunc("GET /{hash}", h.GoTo())
 }
@@ -63,6 +64,8 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 
 func (h *LinkHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		email := r.Context().Value(middlware.CtxEmailKey)
+		log.Println(email)
 		dto, err := req.HandleBody[LinkUpdateRequest](w, r)
 		if err != nil {
 			return
