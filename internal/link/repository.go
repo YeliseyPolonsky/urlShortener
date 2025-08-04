@@ -64,3 +64,24 @@ func (r *LinkRepository) GetByID(id uint) (*Link, error) {
 
 	return &link, nil
 }
+
+func (r *LinkRepository) Count() int64 {
+	var count int64
+
+	r.DB.Table("links").Where("deleted_at is null").Count(&count)
+
+	return count
+}
+
+func (r *LinkRepository) GetAll(limit, offset int) []Link {
+	var links []Link
+
+	r.DB.
+		Table("links").
+		Where("deleted_at is null").
+		Limit(limit).
+		Offset(offset).
+		Scan(&links)
+
+	return links
+}
