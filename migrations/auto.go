@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-advance/internal/link"
+	"go-advance/internal/stat"
 	"go-advance/internal/user"
 	"os"
 
@@ -19,5 +20,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&link.Link{}, &user.User{})
+	db.AutoMigrate(&link.Link{}, &user.User{}, &stat.Stat{})
 }
