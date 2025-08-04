@@ -2,7 +2,7 @@ package link
 
 import (
 	"go-advance/configs"
-	"go-advance/internal/stat"
+	"go-advance/pkg/event"
 	"go-advance/pkg/middlware"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
@@ -12,25 +12,21 @@ import (
 	"gorm.io/gorm"
 )
 
-//нужен ли конфиг?
-
 type LinkHandler struct {
-	*configs.Config
 	*LinkRepository
-	*stat.StatRepository
+	*event.EventBus
 }
 
 type LinkHandlerDeps struct {
 	*configs.Config
 	*LinkRepository
-	*stat.StatRepository
+	*event.EventBus
 }
 
 func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	h := &LinkHandler{
-		deps.Config,
 		deps.LinkRepository,
-		deps.StatRepository,
+		deps.EventBus,
 	}
 
 	router.HandleFunc("POST /link", h.Create())
@@ -124,7 +120,10 @@ func (h *LinkHandler) GoTo() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-		h.StatRepository.AddClick(link.ID)
+		go h.EventBus.Publish(event.Event{
+			Type: event.LinkVisited,
+			Data: link.ID,
+		})
 		http.Redirect(w, r, link.Url, http.StatusTemporaryRedirect)
 	}
 }
