@@ -42,6 +42,10 @@ func main() {
 		LinkRepository: linkRepository,
 		EventBus:       eventBus,
 	})
+	stat.NewStatHandler(router, stat.StatHandlerDep{
+		StatRepository: statRepository,
+		Config:         config,
+	})
 
 	//Middlwares
 	stack := middlware.Chain(
