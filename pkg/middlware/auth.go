@@ -2,7 +2,6 @@ package middlware
 
 import (
 	"context"
-	"go-advance/configs"
 	"go-advance/pkg/jwt"
 	"net/http"
 	"strings"
@@ -19,7 +18,19 @@ func writeUnauthStatus(w http.ResponseWriter) {
 	w.Write([]byte(http.StatusText(http.StatusUnauthorized)))
 }
 
-func IsAuth(next http.Handler, config *configs.Config) http.Handler {
+type AuthMiddleware struct {
+	JWTService *jwt.JWT
+}
+
+type AuthMiddlewareDeps struct {
+	JWTService *jwt.JWT
+}
+
+func NewAuthMiddleware(deps AuthMiddlewareDeps) *AuthMiddleware {
+	return &AuthMiddleware{JWTService: deps.JWTService}
+}
+
+func (middlware *AuthMiddleware) IsAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := r.Header.Get("Authorization")
 		if !strings.HasPrefix(auth, "Bearer ") {
@@ -27,7 +38,7 @@ func IsAuth(next http.Handler, config *configs.Config) http.Handler {
 			return
 		}
 		TOKEN := strings.TrimPrefix(auth, "Bearer ")
-		isValid, data := jwt.NewJWT(config.Auth.Secret).Parse(TOKEN)
+		isValid, data := middlware.JWTService.Parse(TOKEN)
 		if !isValid {
 			writeUnauthStatus(w)
 			return

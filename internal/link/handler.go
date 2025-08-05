@@ -2,8 +2,8 @@ package link
 
 import (
 	"go-advance/configs"
+	"go-advance/pkg/di"
 	"go-advance/pkg/event"
-	"go-advance/pkg/middlware"
 	"go-advance/pkg/req"
 	"go-advance/pkg/res"
 	"net/http"
@@ -21,6 +21,7 @@ type LinkHandlerDeps struct {
 	*configs.Config
 	*LinkRepository
 	*event.EventBus
+	di.IAuthMiddlware
 }
 
 func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
@@ -30,10 +31,10 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 	}
 
 	router.HandleFunc("POST /link", h.Create())
-	router.Handle("PATCH /link/{id}", middlware.IsAuth(h.Update(), deps.Config))
+	router.Handle("PATCH /link/{id}", deps.IAuthMiddlware.IsAuth(h.Update()))
 	router.HandleFunc("DELETE /link/{id}", h.Delete())
 	router.HandleFunc("GET /{hash}", h.GoTo())
-	router.Handle("GET /link", middlware.IsAuth(h.GetAll(), deps.Config))
+	router.Handle("GET /link", deps.IAuthMiddlware.IsAuth(h.GetAll()))
 }
 
 func (h *LinkHandler) Create() http.HandlerFunc {

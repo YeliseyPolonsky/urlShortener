@@ -2,7 +2,7 @@ package stat
 
 import (
 	"go-advance/configs"
-	"go-advance/pkg/middlware"
+	"go-advance/pkg/di"
 	"go-advance/pkg/res"
 	"net/http"
 	"time"
@@ -16,11 +16,13 @@ const (
 type StatHandler struct {
 	*StatRepository
 	*configs.Config
+	di.IAuthMiddlware
 }
 
 type StatHandlerDep struct {
 	*StatRepository
 	*configs.Config
+	di.IAuthMiddlware
 }
 
 func NewStatHandler(router *http.ServeMux, dep StatHandlerDep) {
@@ -29,7 +31,7 @@ func NewStatHandler(router *http.ServeMux, dep StatHandlerDep) {
 		Config:         dep.Config,
 	}
 
-	router.Handle("GET /stat", middlware.IsAuth(handler.GetStat(), dep.Config))
+	router.Handle("GET /stat", dep.IAuthMiddlware.IsAuth(handler.GetStat()))
 }
 
 func (h *StatHandler) GetStat() http.HandlerFunc {

@@ -9,6 +9,7 @@ import (
 	"go-advance/internal/user"
 	"go-advance/pkg/db"
 	"go-advance/pkg/event"
+	"go-advance/pkg/jwt"
 	"go-advance/pkg/middlware"
 	"log"
 	"net/http"
@@ -19,6 +20,7 @@ func main() {
 	db := db.NewDb(config)
 	router := http.NewServeMux()
 	eventBus := event.NewEventBus()
+
 	//Repositories
 	linkRepository := link.NewLinkRepository(db)
 	userRepository := user.NewUserRepository(db)
@@ -26,11 +28,17 @@ func main() {
 
 	//Services
 	authService := auth.NewUserService(userRepository)
+	jwtService := jwt.NewJWT(config.Auth.Secret)
 	statService := stat.NewStatService(stat.StatServiceDep{
 		StatRepository: statRepository,
 		EventBus:       eventBus,
 	})
 	go statService.AddClick()
+
+	//Stateful middlware
+	authMiddlware := middlware.NewAuthMiddleware(middlware.AuthMiddlewareDeps{
+		JWTService: jwtService,
+	})
 
 	//Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
@@ -41,10 +49,12 @@ func main() {
 		Config:         config,
 		LinkRepository: linkRepository,
 		EventBus:       eventBus,
+		IAuthMiddlware: authMiddlware,
 	})
 	stat.NewStatHandler(router, stat.StatHandlerDep{
 		StatRepository: statRepository,
 		Config:         config,
+		IAuthMiddlware: authMiddlware,
 	})
 
 	//Middlwares
