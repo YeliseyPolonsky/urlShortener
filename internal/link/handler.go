@@ -38,8 +38,9 @@ func NewLinkHandler(router *http.ServeMux, deps LinkHandlerDeps) {
 
 func (h *LinkHandler) Create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		dto, err := req.HandleBody[LinkCreateRequest](w, r)
+		dto, err := req.HandleBody[LinkCreateRequest](r)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		link := NewLink(dto.Url)
@@ -63,8 +64,9 @@ func (h *LinkHandler) Update() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// email := r.Context().Value(middlware.CtxEmailKey)
 		// log.Println(email)
-		dto, err := req.HandleBody[LinkUpdateRequest](w, r)
+		dto, err := req.HandleBody[LinkUpdateRequest](r)
 		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		idString := r.PathValue("id")
