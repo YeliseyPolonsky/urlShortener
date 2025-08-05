@@ -33,3 +33,22 @@ func (r *StatRepository) AddClick(linkId uint) {
 		r.DB.Save(&stat)
 	}
 }
+
+func (r *StatRepository) GetStat(by string, from, to time.Time) []GetStatRespone {
+	var stats []GetStatRespone
+	var selectQuery string
+	switch by {
+	case GroupByDay:
+		selectQuery = "to_char(date,'YYYY-MM-DD') as period, sum(clicks)"
+	case GroupByMonth:
+		selectQuery = "to_char(date,'YYYY-MM') as period, sum(clicks)"
+	}
+	r.DB.Table("stats").
+		Select(selectQuery).
+		Where("date between ? and ?", from, to).
+		Group("period").
+		Order("period").
+		Scan(&stats)
+
+	return stats
+}
