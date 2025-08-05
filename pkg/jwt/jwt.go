@@ -3,7 +3,7 @@ package jwt
 import "github.com/golang-jwt/jwt/v5"
 
 type JWT struct {
-	Secret string
+	secret string
 }
 
 type JWTData struct {
@@ -12,7 +12,7 @@ type JWTData struct {
 
 func NewJWT(secret string) *JWT {
 	return &JWT{
-		Secret: secret,
+		secret: secret,
 	}
 }
 
@@ -21,7 +21,7 @@ func (j *JWT) Create(email string) (string, error) {
 		"email": email,
 	})
 
-	s, err := t.SignedString([]byte(j.Secret))
+	s, err := t.SignedString([]byte(j.secret))
 	if err != nil {
 		return "", err
 	}
@@ -31,7 +31,7 @@ func (j *JWT) Create(email string) (string, error) {
 
 func (j *JWT) Parse(token string) (bool, *JWTData) {
 	t, err := jwt.Parse(token, func(t *jwt.Token) (any, error) {
-		return []byte(j.Secret), nil
+		return []byte(j.secret), nil
 	})
 	if err != nil {
 		return false, nil
