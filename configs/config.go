@@ -22,9 +22,9 @@ type AuthConfig struct {
 
 func LoadConfig() *Config {
 	if godotenv.Load() != nil {
-		log.Println("Error loading .env file, using default config")
+		log.Println("Warning: error loading .env file, using system enviroment variables!")
 	}
-	return &Config{
+	config := &Config{
 		DbConfig{
 			Dsn: os.Getenv("DSN"),
 		},
@@ -32,4 +32,10 @@ func LoadConfig() *Config {
 			Secret: os.Getenv("SECRET"),
 		},
 	}
+
+	if config.Db.Dsn == "" || config.Auth.Secret == "" {
+		log.Fatal("Some variablies of Config is empty!")
+	}
+
+	return config
 }
