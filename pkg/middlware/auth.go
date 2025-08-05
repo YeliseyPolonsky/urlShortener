@@ -19,19 +19,37 @@ func writeUnauthStatus(w http.ResponseWriter) {
 }
 
 type AuthMiddleware struct {
-	JWTService *jwt.JWT
+	JWTService  *jwt.JWT
+	AuthPaterns []string
 }
 
 type AuthMiddlewareDeps struct {
-	JWTService *jwt.JWT
+	JWTService  *jwt.JWT
+	AuthPaterns []string
 }
 
 func NewAuthMiddleware(deps AuthMiddlewareDeps) *AuthMiddleware {
-	return &AuthMiddleware{JWTService: deps.JWTService}
+	return &AuthMiddleware{
+		JWTService:  deps.JWTService,
+		AuthPaterns: deps.AuthPaterns,
+	}
 }
 
 func (middlware *AuthMiddleware) IsAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		pattern := r.Pattern
+		isAuthPattern := false
+		for _, p := range middlware.AuthPaterns {
+			if pattern == p {
+				isAuthPattern = true
+				break
+			}
+		}
+
+		if !isAuthPattern {
+			next.ServeHTTP(w, r)
+		}
+
 		auth := r.Header.Get("Authorization")
 		if !strings.HasPrefix(auth, "Bearer ") {
 			writeUnauthStatus(w)
