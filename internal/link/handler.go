@@ -43,9 +43,6 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 			return
 		}
 		link := NewLink(dto.Url)
-		// for h.LinkRepository.IsExist("hash", link.Hash) {
-		// 	link.GenerateHash()
-		// }
 		for {
 			existedLink, _ := h.LinkRepository.GetByHash(link.Hash)
 			if existedLink == nil {
@@ -55,7 +52,7 @@ func (h *LinkHandler) Create() http.HandlerFunc {
 		}
 		err = h.LinkRepository.Create(link)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest) //код неверный?
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		res.Json(w, link, 201)
