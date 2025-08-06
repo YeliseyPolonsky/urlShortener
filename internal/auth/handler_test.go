@@ -64,3 +64,27 @@ func TestSuccessLogin(t *testing.T) {
 		t.Fatal(writer.Code)
 	}
 }
+
+func TestSuccessReg(t *testing.T) {
+	handler, mock, err := bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	table := sqlmock.NewRows([]string{"email", "password", "name"})
+	mock.ExpectQuery("SELECT").WillReturnRows(table)
+	mock.ExpectBegin()
+	mock.ExpectQuery("INSERT").WillReturnRows(sqlmock.NewRows([]string{"id"}).AddRow(1))
+	mock.ExpectCommit()
+	data, _ := json.Marshal(auth.RegisterRequest{
+		Name:     "yelisey",
+		Email:    "yelisey@gmail.com",
+		Password: "123",
+	})
+	reader := bytes.NewReader(data)
+	writer := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/auth/register", reader)
+	handler.Register()(writer, req)
+	if writer.Code != http.StatusOK {
+		t.Fatal(writer.Code)
+	}
+}
