@@ -15,7 +15,7 @@ import (
 	"net/http"
 )
 
-func main() {
+func App() http.Handler {
 	config := configs.LoadConfig()
 	db := db.NewDb(config)
 	router := http.NewServeMux()
@@ -63,9 +63,14 @@ func main() {
 		middlware.Logging,
 	)
 
+	return stack(router)
+}
+
+func main() {
+	app := App()
 	server := http.Server{
 		Addr:    ":8080",
-		Handler: stack(router),
+		Handler: app,
 	}
 
 	fmt.Println("Start server <- localhost:8080")
