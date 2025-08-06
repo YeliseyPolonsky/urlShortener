@@ -27,7 +27,7 @@ func App() http.Handler {
 	statRepository := stat.NewStatRepository(db)
 
 	//Services
-	authService := auth.NewUserService(userRepository)
+	authService := auth.NewAuthService(userRepository)
 	jwtService := jwt.NewJWT(config.Auth.Secret)
 	statService := stat.NewStatService(stat.StatServiceDep{
 		StatRepository: statRepository,
