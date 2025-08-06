@@ -35,33 +35,32 @@ func main() {
 	})
 	go statService.AddClick()
 
-	var authURLs []string
+	//Stateful middlware
+	authMiddlware := middlware.NewAuthMiddleware(middlware.AuthMiddlewareDeps{
+		JWTService: jwtService,
+	})
+
 	//Handlers
 	auth.NewAuthHandler(router, auth.AuthHandlerDeps{
 		Config:      config,
 		AuthService: authService,
 	})
-	authURLs = link.NewLinkHandler(router, link.LinkHandlerDeps{
+	link.NewLinkHandler(router, link.LinkHandlerDeps{
 		Config:         config,
 		LinkRepository: linkRepository,
 		EventBus:       eventBus,
+		IAuthMiddlware: authMiddlware,
 	})
 	stat.NewStatHandler(router, stat.StatHandlerDep{
 		StatRepository: statRepository,
 		Config:         config,
-	})
-
-	//Stateful middlware
-	authMiddlware := middlware.NewAuthMiddleware(middlware.AuthMiddlewareDeps{
-		JWTService:  jwtService,
-		AuthPaterns: authURLs,
+		IAuthMiddlware: authMiddlware,
 	})
 
 	//Middlwares
 	stack := middlware.Chain(
 		middlware.CORS,
 		middlware.Logging,
-		authMiddlware.IsAuth,
 	)
 
 	server := http.Server{
